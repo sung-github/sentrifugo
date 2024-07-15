@@ -64,8 +64,8 @@ class Default_Form_addemployeeleaves extends Zend_Form
 		
 		$emp_leave_limit->addValidator("regex",true,array(
                 
-						   'pattern'=>'/^(\-?[1-9]|\-?[1-9][0-9])$/',
-                
+						   // 'pattern'=>'/^(\-?[1-9]|\-?[1-9][0-9])$/',
+               					'pattern'=>'/^(\-?[0-9]|\-?[0-9]\.5|\-?[1-9][0-9]|\-?[1-9][0-9]\.5)$/', 
                            'messages'=>array(
                                'regexNotMatch'=>'Leave limit must be in the range of 0 to 100.'
                            )
