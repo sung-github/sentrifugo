@@ -635,12 +635,12 @@ class Default_LeaverequestController extends Zend_Controller_Action
                         <td width="72%">'.$userfullname.'</td>
                       </tr>
                       <tr bgcolor="#e9f6fc">
-                        <td style="border-right:2px solid #BBBBBB;">No. of Day(s)</td>
-                        <td>'.$appliedleavescount.'</td>
+                        <td style="border-right:2px solid #BBBBBB;">Remaining leaves available for this year</td>
+                        <td>'.$availableleaves.'</td>
                       </tr>
                       <tr>
-                        <td style="border-right:2px solid #BBBBBB;">Remaining Leaves</td>
-                        <td>'.$availableleaves.'</td>
+                        <td style="border-right:2px solid #BBBBBB;">No. of Day(s)</td>
+                        <td>'.$appliedleavescount.'</td>
                       </tr>
                       <tr bgcolor="#e9f6fc">
                         <td style="border-right:2px solid #BBBBBB;">From</td>
@@ -649,19 +649,23 @@ class Default_LeaverequestController extends Zend_Controller_Action
                       <tr>
                         <td style="border-right:2px solid #BBBBBB;">To</td>
                         <td>'.$to_date.'</td>
-                  </tr>
+                      </tr>
                       <tr bgcolor="#e9f6fc">
+                         <td style="border-right:2px solid #BBBBBB;">Leave Type</td>
+                        <td>'.$leavetypetext.'</td>
+                      </tr>
+                      <tr>
                         <td style="border-right:2px solid #BBBBBB;">Reason for Leave</td>
                         <td>'.$reason.'</td>
                   </tr>
-                  <tr>
+                  <tr bgcolor="#e9f6fc">
                         <td style="border-right:2px solid #BBBBBB;">Reporting Manager</td>
                         <td>'.$reportingmanagerName.'</td>
                   </tr>
                 </tbody></table>
 
             </div>
-            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'/index/popup" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>
+            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>
             </div>';
                                 $result = sapp_Global::_sendEmail($options);	
 							}		
@@ -683,12 +687,12 @@ class Default_LeaverequestController extends Zend_Controller_Action
                         <td width="72%">'.$userfullname.'</td>
                       </tr>
                       <tr bgcolor="#e9f6fc">
-                        <td style="border-right:2px solid #BBBBBB;">No. of Day(s)</td>
-                        <td>'.$appliedleavescount.'</td>
+                        <td style="border-right:2px solid #BBBBBB;">Remaining leaves available for this year</td>
+                        <td>'.$availableleaves.'</td>
                       </tr>
                       <tr>
-                        <td style="border-right:2px solid #BBBBBB;">Remaining Leaves</td>
-                        <td>'.$availableleaves.'</td>
+                        <td style="border-right:2px solid #BBBBBB;">No. of Day(s)</td>
+                        <td>'.$appliedleavescount.'</td>
                       </tr>
                       <tr bgcolor="#e9f6fc">
                         <td style="border-right:2px solid #BBBBBB;">From</td>
@@ -699,17 +703,21 @@ class Default_LeaverequestController extends Zend_Controller_Action
                         <td>'.$to_date.'</td>
                   </tr>
                       <tr bgcolor="#e9f6fc">
+                         <td style="border-right:2px solid #BBBBBB;">Leave Type</td>
+                        <td>'.$leavetypetext.'</td>
+                      </tr>
+                      <tr>
                         <td style="border-right:2px solid #BBBBBB;">Reason for Leave</td>
                         <td>'.$reason.'</td>
                   </tr>
-                  <tr>
+                  <tr bgcolor="#e9f6fc">
                         <td style="border-right:2px solid #BBBBBB;">Reporting Manager</td>
                         <td>'.$reportingmanagerName.'</td>
                   </tr>
                 </tbody></table>
 
             </div>
-            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'/index/popup" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>
+            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>
             </div>';	
 								//$options['cron'] = 'yes';
                                 $result = sapp_Global::_sendEmail($options);
@@ -755,7 +763,7 @@ class Default_LeaverequestController extends Zend_Controller_Action
                 </tbody></table>
 
             </div>
-            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'/index/popup" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>												
+            <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>												
             </div>';
                                 $result = sapp_Global::_sendEmail($options);	
 							
@@ -1031,6 +1039,7 @@ class Default_LeaverequestController extends Zend_Controller_Action
 		$leaverequestmodel = new Default_Model_Leaverequest();
 		$employeeleavetypesmodel = new Default_Model_Employeeleavetypes();
 		$usersmodel = new Default_Model_Users();
+		$employeesmodel = new Default_Model_Employees();
 		if($id && is_numeric($id) && $id>0)
  		{
  			$leave_details = $leaverequestmodel->getLeaveDetails($id);
@@ -1143,6 +1152,7 @@ class Default_LeaverequestController extends Zend_Controller_Action
 							$toEmail = $repManagerDetails[0]['emailaddress'];
 							$toName = $repManagerDetails[0]['userfullname'];
 						}
+						/*
 						elseif($i==3) {
 							if (defined('LV_HR_'.$businessunitid) && $businessunitid !='')
 							{
@@ -1150,7 +1160,19 @@ class Default_LeaverequestController extends Zend_Controller_Action
 							$toName = 'Leave management';
 							}
 						}
-						
+						*/
+
+                                                elseif($i==3) {
+						        if ($businessunitid !='')
+					                {
+						                $repHRManagerDetails = $employeesmodel->getHRManagerDetails($businessunitid);
+					                        $toEmail = $repHRManagerDetails[0]['emailaddress'];
+					                        $toName = $repHRManagerDetails[0]['userfullname'];
+								$subject .= ' (HR Admin reference only)';
+					                }
+					        }
+
+
 						if($toEmail!='' && $toName!='') {
 							$options['header'] = 'Leave Request';
 							$options['toEmail'] = $toEmail;
@@ -1183,7 +1205,7 @@ class Default_LeaverequestController extends Zend_Controller_Action
                 			</tbody>
                 			</table>
 							</div>
-            				<div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'/index/popup" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>';	
+            				<div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>';	
                             sapp_Global::_sendEmail($options);
 							
 						}
