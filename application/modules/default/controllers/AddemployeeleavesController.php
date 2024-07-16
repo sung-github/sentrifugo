@@ -124,6 +124,7 @@ class Default_AddemployeeleavesController extends Zend_Controller_Action
 		$employeeleavesModel = new Default_Model_Employeeleaves();
 		$leavemanagementModel = new Default_Model_Leavemanagement();
 		$usermodel = new Default_Model_Employee();
+		$usersmodel = new Default_Model_Users();
 		$businessunit_id = $this->_getParam('businessunit_id',null);
         $department_id = $this->_getParam('department_id',null);
         $user_ids = $this->_getParam('user_id',null);
@@ -164,12 +165,56 @@ class Default_AddemployeeleavesController extends Zend_Controller_Action
 							$Id = $employeeleavesModel->SaveorUpdateEmployeeLeaves($userId, $empLeaveLimit,$isleavetrasnferset,$loginUserId);
 							$menuID = EMPLOYEE;
 							$result = sapp_Global::logManager($menuID,$actionflag,$loginUserId,$userId);
-							$empLeaveLimit = '';
+							// $empLeaveLimit = '';
 					} 
 				}
-					$this->_helper->getHelper("FlashMessenger")->addMessage(array("success"=>"Employee Leave details added successfully."));
-					$this->_redirect('addemployeeleaves');
-					
+
+				$currentYear = date('Y');
+				$date= gmdate("Y-m-d H:i:s");
+                                $sysadminDetails = $usersmodel->getUserDetailsByID(1);
+				$toEmail = $sysadminDetails[0]['emailaddress'];
+				$toName = $sysadminDetails[0]['userfullname'];
+				$subject = 'Amendment of alloted annual leaves for year '.$currentYear;
+				$employeeDetails = $usersmodel->getUserDetailsByID($userId);
+				$employeename = $employeeDetails[0]['userfullname'];
+				$loginDetails = $usersmodel->getUserDetailsByID($loginUserId);
+				$loginusername = $loginDetails[0]['userfullname'];
+				if($toEmail!='' && $toName!='') {
+					$options['header'] = 'Amendment of alloted annual leaves for year '.$currentYear;
+					$options['toEmail'] = $toEmail;
+					$options['toName'] = $toName;
+					$options['subject'] = $subject;
+					$options['message'] = '<div>
+<table width="100%" cellspacing="0" cellpadding="15" border="0" style="border:3px solid #BBBBBB; font-size:16px; font-family:Arial, Helvetica, sans-serif; margin:30px 0 30px 0;" bgcolor="#ffffff">
+	<tbody>
+		<tr>
+			<td width="28%" style="border-right:2px solid #BBBBBB;">Employee Name</td>
+			<td width="72%">'.$employeename.'</td>
+		</tr>
+		<tr bgcolor="#e9f6fc">
+			<td style="border-right:2px solid #BBBBBB;">New Total of Alloted Leaves</td>
+			<td>'.$empLeaveLimit.'</td>
+		</tr>
+		<tr>
+			<td style="border-right:2px solid #BBBBBB;">No. of Day(s) Altered</td>
+			<td>'.$emp_leave_limit.'</td>
+		</tr>
+		<tr bgcolor="#e9f6fc">
+			<td style="border-right:2px solid #BBBBBB;">Changes Applied by</td>
+			<td>'.$loginusername.'</td>
+		</tr>
+		<tr bgcolor="#e9f6fc">
+			<td style="border-right:2px solid #BBBBBB;">Modify Date</td>
+			<td>'.$date.'</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>';
+					$result = sapp_Global::_sendEmail($options);
+				}
+                                $this->_helper->getHelper("FlashMessenger")->addMessage(array("success"=>"Employee Leave details added successfully."));
+				$this->_redirect('addemployeeleaves');
 			}
 	        catch(Exception $e)
 	      	{
