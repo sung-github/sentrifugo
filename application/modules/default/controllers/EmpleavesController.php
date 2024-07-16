@@ -510,6 +510,8 @@ class Default_EmpleavesController extends Zend_Controller_Action
 	public function save($empleavesform,$userid,$used_leaves,$leavetransfercount,$isleavetrasnferset,$currentyearleavecount)
 	{
 		$auth = Zend_Auth::getInstance();
+		$usersmodel = new Default_Model_Users();
+		$amended_limit = '';
 		if($auth->hasIdentity()){
 			$loginUserId = $auth->getStorage()->read()->id;
 		}
@@ -518,10 +520,13 @@ class Default_EmpleavesController extends Zend_Controller_Action
 			$id = $this->_request->getParam('id');
 			$user_id = $userid;
 			$emp_leave_limit = $this->_request->getParam('leave_limit');
-			if($leavetransfercount !='' && $currentyearleavecount =='')
-			$emp_leave_limit = ($emp_leave_limit + $leavetransfercount);
-			else
-			$emp_leave_limit = ($emp_leave_limit + $currentyearleavecount);
+			if($leavetransfercount !='' && $currentyearleavecount ==''){
+				$amended_limit = $emp_leave_limit;
+				$emp_leave_limit = ($emp_leave_limit + $leavetransfercount);
+			}else{
+				$amended_limit = $emp_leave_limit;
+				$emp_leave_limit = ($emp_leave_limit + $currentyearleavecount);
+			}
 
 			$isleavetrasnfer = 0;
 			if($isleavetrasnferset == 1)
@@ -548,9 +553,53 @@ class Default_EmpleavesController extends Zend_Controller_Action
 				$actionflag = 1;
 				$tableid = $Id;
 			}
-			$menuID = EMPLOYEE;
-			$result = sapp_Global::logManager($menuID,$actionflag,$loginUserId,$user_id);
-			$this->_redirect('empleaves/edit/userid/'.$user_id);
+
+			$currentYear = date('Y');
+                        $sysadminDetails = $usersmodel->getUserDetailsByID(1);
+                        $toEmail = $sysadminDetails[0]['emailaddress'];
+                        $toName = $sysadminDetails[0]['userfullname'];
+                        $subject = 'Amendment of alloted annual leaves for year '.$currentYear;
+                        $employeeDetails = $usersmodel->getUserDetailsByID($user_id);
+                        $employeename = $employeeDetails[0]['userfullname'];
+                        $loginDetails = $usersmodel->getUserDetailsByID($loginUserId);
+                        $loginusername = $loginDetails[0]['userfullname'];
+                        if($toEmail!='' && $toName!=''){
+				$options['header'] = 'Amendment of alloted annual leaves for year '.$currentYear;
+				$options['toEmail'] = $toEmail;
+				$options['toName'] = $toName;
+				$options['subject'] = $subject;
+				$options['message'] = '<div>
+<table width="100%" cellspacing="0" cellpadding="15" border="0" style="border:3px solid #BBBBBB; font-size:16px; font-family:Arial, Helvetica, sans-serif; margin:30px 0 30px 0;" bgcolor="#ffffff">
+        <tbody>
+		<tr>
+			<td width="28%" style="border-right:2px solid #BBBBBB;">Employee Name</td>
+			<td width="72%">'.$employeename.'</td>
+		</tr>
+		<tr bgcolor="#e9f6fc">
+	                <td style="border-right:2px solid #BBBBBB;">New Total of Alloted Annual Leaves</td>
+	                <td>'.$emp_leave_limit.'</td>
+	        </tr>
+	        <tr>
+	                <td style="border-right:2px solid #BBBBBB;">No. of Day(s) Altered</td>
+	                <td>'.$amended_limit.'</td>
+	        </tr>
+	        <tr bgcolor="#e9f6fc">
+	                <td style="border-right:2px solid #BBBBBB;">Changes Applied by</td>
+	                <td>'.$loginusername.'</td>
+	        </tr>
+	        <tr>
+	                <td style="border-right:2px solid #BBBBBB;">Modify Date</td>
+	                <td>'.$date.'</td>
+	        </tr>
+	</tbody>
+</table>
+</div>
+<div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>';
+				$result = sapp_Global::_sendEmail($options);
+			}
+                        $menuID = EMPLOYEE;
+                        $result = sapp_Global::logManager($menuID,$actionflag,$loginUserId,$user_id);
+                        $this->_redirect('empleaves/edit/userid/'.$user_id);
 
 		}else
 		{
