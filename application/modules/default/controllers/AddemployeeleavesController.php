@@ -171,20 +171,27 @@ class Default_AddemployeeleavesController extends Zend_Controller_Action
 
 				$currentYear = date('Y');
 				$date= gmdate("Y-m-d H:i:s");
-                                $sysadminDetails = $usersmodel->getUserDetailsByID(1);
-				$toEmail = $sysadminDetails[0]['emailaddress'];
-				$toName = $sysadminDetails[0]['userfullname'];
-				$subject = 'Amendment of alloted annual leaves for year '.$currentYear;
-				$employeeDetails = $usersmodel->getUserDetailsByID($userId);
-				$employeename = $employeeDetails[0]['userfullname'];
-				$loginDetails = $usersmodel->getUserDetailsByID($loginUserId);
-				$loginusername = $loginDetails[0]['userfullname'];
-				if($toEmail!='' && $toName!='') {
-					$options['header'] = 'Amendment of alloted annual leaves for year '.$currentYear;
-					$options['toEmail'] = $toEmail;
-					$options['toName'] = $toName;
-					$options['subject'] = $subject;
-					$options['message'] = '<div>
+				for($i=1;$i<=2;$i++) {
+					if($i==1){
+	                                        $receiverDetails = $usersmodel->getUserDetailsByID(1);
+	                                        $toEmail = $receiverDetails[0]['emailaddress'];
+						$toName = $receiverDetails[0]['userfullname'];
+					}elseif($i==2){
+	                                        $receiverDetails = $usersmodel->getUserDetailsByID($user_id);
+	                                        $toEmail = $receiverDetails[0]['emailaddress'];
+						$toName = $receiverDetails[0]['userfullname'];
+					}
+					$subject = 'Amendment of allotted annual leaves for year '.$currentYear;
+					$employeeDetails = $usersmodel->getUserDetailsByID($userId);
+					$employeename = $employeeDetails[0]['userfullname'];
+					$loginDetails = $usersmodel->getUserDetailsByID($loginUserId);
+					$loginusername = $loginDetails[0]['userfullname'];
+					if($toEmail!='' && $toName!='') {
+						$options['header'] = 'Amendment of allotted annual leaves for year '.$currentYear;
+						$options['toEmail'] = $toEmail;
+						$options['toName'] = $toName;
+						$options['subject'] = $subject;
+						$options['message'] = '<div>
 <table width="100%" cellspacing="0" cellpadding="15" border="0" style="border:3px solid #BBBBBB; font-size:16px; font-family:Arial, Helvetica, sans-serif; margin:30px 0 30px 0;" bgcolor="#ffffff">
 	<tbody>
 		<tr>
@@ -192,7 +199,7 @@ class Default_AddemployeeleavesController extends Zend_Controller_Action
 			<td width="72%">'.$employeename.'</td>
 		</tr>
 		<tr bgcolor="#e9f6fc">
-			<td style="border-right:2px solid #BBBBBB;">New Total of Alloted Leaves</td>
+			<td style="border-right:2px solid #BBBBBB;">New Total of Allotted Leaves</td>
 			<td>'.$empLeaveLimit.'</td>
 		</tr>
 		<tr>
@@ -211,7 +218,8 @@ class Default_AddemployeeleavesController extends Zend_Controller_Action
 </table>
 </div>
 <div style="padding:20px 0 10px 0;">Please <a href="'.BASE_URL.'" target="_blank" style="color:#b3512f;">click here</a> to login and check the leave details.</div>';
-					$result = sapp_Global::_sendEmail($options);
+						$result = sapp_Global::_sendEmail($options);
+					}
 				}
                                 $this->_helper->getHelper("FlashMessenger")->addMessage(array("success"=>"Employee Leave details added successfully."));
 				$this->_redirect('addemployeeleaves');
